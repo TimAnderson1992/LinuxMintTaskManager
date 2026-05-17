@@ -1,14 +1,45 @@
 # Linux Mint System Monitor
 
-Linux Mint System Monitor is a desktop system monitor for Linux Mint. It is inspired by Windows Task Manager, but it is built for a Linux Mint desktop instead of trying to be a clone for every platform.
+Linux Mint System Monitor is a desktop system monitor for Linux Mint. It is inspired by Windows Task Manager, but built for a Linux Mint desktop instead of trying to be a clone for every platform.
 
 The goal is simple: press `Ctrl+Shift+Esc`, see what is running, check CPU/memory/disk/network/GPU activity, and get back to work.
 
-## Current Status
+## Quick Install
 
-This is usable, but still actively being improved. The main workflows are in place, the app can be packaged as a `.deb`, and it has Cinnamon shortcut integration. There are still hardware and desktop combinations that need more testing.
+Most users should just download the `.deb` from GitHub Releases. You do not need the .NET SDK, and you do not need to compile anything.
 
-Linux Mint Cinnamon is the primary target. Ubuntu, Debian, Fedora, Arch-based systems, and other desktops may work, but they are not the main target yet.
+1. Download the latest `.deb` from:
+   <https://github.com/TimAnderson1992/LinuxMintTaskManager/releases>
+2. Double-click it in Linux Mint and install it.
+3. Press `Ctrl+Shift+Esc` to open Linux Mint System Monitor.
+
+If you prefer the terminal:
+
+```bash
+sudo apt install ./linux-mint-system-monitor_1.0.0_amd64.deb
+```
+
+There is also a small installer script for the latest GitHub release:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/TimAnderson1992/LinuxMintTaskManager/main/install-from-github.sh -o /tmp/install-linux-mint-system-monitor.sh
+bash /tmp/install-linux-mint-system-monitor.sh
+```
+
+With `wget`:
+
+```bash
+wget -O /tmp/install-linux-mint-system-monitor.sh https://raw.githubusercontent.com/TimAnderson1992/LinuxMintTaskManager/main/install-from-github.sh
+bash /tmp/install-linux-mint-system-monitor.sh
+```
+
+Uninstall with:
+
+```bash
+sudo apt remove linux-mint-system-monitor
+```
+
+On Linux Mint Cinnamon, the `.deb` tries to create a `Ctrl+Shift+Esc` custom keyboard shortcut. If that shortcut is already assigned to something else, the installer leaves your existing shortcut alone and prints a message.
 
 ## Features
 
@@ -23,79 +54,28 @@ Linux Mint Cinnamon is the primary target. Ubuntu, Debian, Fedora, Arch-based sy
 - Linux Mint Cinnamon `Ctrl+Shift+Esc` shortcut integration when installed from the `.deb`
 - Debian package build script
 
-## Download and Install
+## Screenshots
 
-The easiest way to install Linux Mint System Monitor is from GitHub Releases.
+Screenshots are not in the repo yet. They should be added once the main screens settle down a bit.
 
-1. Go to the releases page:
-   <https://github.com/TimAnderson1992/LinuxMintTaskManager/releases>
-2. Download the latest `.deb` file, for example:
-   `linux-mint-system-monitor_1.0.0_amd64.deb`
-3. Double-click the `.deb` file in Linux Mint, or install it from a terminal:
+## Current Status
 
-```bash
-sudo apt install ./linux-mint-system-monitor_1.0.0_amd64.deb
-```
+This is usable, but still actively being improved. The main workflows are in place, the app can be packaged as a `.deb`, and it has Cinnamon shortcut integration. There are still hardware and desktop combinations that need more testing.
 
-On Linux Mint Cinnamon, the package tries to create a `Ctrl+Shift+Esc` custom keyboard shortcut for:
+Linux Mint Cinnamon is the primary target. Ubuntu, Debian, Fedora, Arch-based systems, and other desktops may work, but they are not the main target yet.
 
-```bash
-/usr/bin/linux-mint-system-monitor
-```
+## Known Limitations
 
-If `Ctrl+Shift+Esc` is already assigned to something else, the installer leaves your existing shortcut alone and prints a message.
-
-### Command-Line Install From GitHub
-
-You can also install the latest GitHub release with the helper script:
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/TimAnderson1992/LinuxMintTaskManager/main/install-from-github.sh -o /tmp/install-linux-mint-system-monitor.sh
-bash /tmp/install-linux-mint-system-monitor.sh
-```
-
-Or with `wget`:
-
-```bash
-wget -O /tmp/install-linux-mint-system-monitor.sh https://raw.githubusercontent.com/TimAnderson1992/LinuxMintTaskManager/main/install-from-github.sh
-bash /tmp/install-linux-mint-system-monitor.sh
-```
-
-Uninstall with:
-
-```bash
-sudo apt remove linux-mint-system-monitor
-```
-
-If the package created the Cinnamon shortcut, uninstall removes that shortcut entry and leaves other custom shortcuts alone.
-
-## Build a `.deb` Locally
-
-Build the package first:
-
-```bash
-./package-deb.sh
-```
-
-Install or reinstall it:
-
-```bash
-sudo apt install --reinstall ./artifacts/packages/linux-mint-system-monitor_1.0.0_amd64.deb
-```
-
-After install, the app files are placed in:
-
-```text
-/opt/linux-mint-system-monitor/
-```
-
-The launcher command is:
-
-```bash
-/usr/bin/linux-mint-system-monitor
-```
+- GPU metrics depend on hardware, kernel, and driver support.
+- Some sensors may show `Not available`, especially on laptops, VMs, SBCs, and systems with restricted sensor access.
+- NVIDIA metrics usually require `nvidia-smi`.
+- AMD and Intel live GPU metrics depend on what the kernel exposes through sysfs.
+- Cinnamon shortcut integration is only for Linux Mint Cinnamon. Other desktops may not get automatic `Ctrl+Shift+Esc` setup.
+- Wayland support may vary by distro, driver, and Avalonia backend behavior.
 
 ## Build From Source
+
+This section is for developers and contributors. Normal users should install the `.deb` from GitHub Releases instead.
 
 Requirements:
 
@@ -111,32 +91,39 @@ dotnet run --project LinuxMintSystemMonitor.csproj
 dotnet publish -c Release
 ```
 
-## Build the Debian Package
+## Packaging
+
+You only need this if you want to build a local `.deb` yourself.
 
 ```bash
 ./package-deb.sh
 ```
 
-By default this builds a self-contained Linux x64 package:
+The package is written to:
 
 ```text
 artifacts/packages/linux-mint-system-monitor_1.0.0_amd64.deb
 ```
 
-You can override the package version:
+Install or reinstall that local build with:
 
 ```bash
-VERSION=1.0.1 ./package-deb.sh
+sudo apt install --reinstall ./artifacts/packages/linux-mint-system-monitor_1.0.0_amd64.deb
 ```
 
-## Known Limitations
+The installed app lives in:
 
-- GPU metrics depend on hardware, kernel, and driver support.
-- Some sensors may show `Not available`, especially on laptops, VMs, SBCs, and systems with restricted sensor access.
-- NVIDIA metrics usually require `nvidia-smi`.
-- AMD and Intel live GPU metrics depend on what the kernel exposes through sysfs.
-- Cinnamon shortcut integration is only for Linux Mint Cinnamon. Other desktops may not get automatic `Ctrl+Shift+Esc` setup.
-- Wayland support may vary by distro, driver, and Avalonia backend behavior.
+```text
+/opt/linux-mint-system-monitor/
+```
+
+The launcher command is:
+
+```bash
+/usr/bin/linux-mint-system-monitor
+```
+
+For release tagging notes, see [docs/releases.md](docs/releases.md).
 
 ## Why I Made This
 
