@@ -1,0 +1,43 @@
+# .NET / Avalonia build output
+bin/
+obj/
+artifacts/
+publish/
+*.nupkg
+*.snupkg
+*.user
+*.rsuser
+*.suo
+
+# Generated packages and installer staging
+*.deb
+*.rpm
+*.tar.gz
+*.zip
+
+# Logs and temporary files
+*.log
+*.tmp
+*.temp
+*.pid
+*.trace
+*.dmp
+core
+core.*
+
+# IDE/editor files
+.vs/
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS junk
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Local agent/tool metadata
+.agents/
+.codex/

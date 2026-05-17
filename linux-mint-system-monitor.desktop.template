@@ -1,0 +1,15 @@
+[Desktop Entry]
+Type=Application
+Name=Linux Mint System Monitor
+GenericName=System Monitor
+Comment=Windows Task Manager-style system monitor for Linux
+Exec=/usr/bin/linux-mint-system-monitor
+Icon=linux-mint-system-monitor
+Terminal=false
+StartupNotify=true
+Categories=System;Monitor;
+Keywords=Task Manager;System Monitor;Processes;Performance;CPU;Memory;
+
+# Linux Mint keyboard shortcut note:
+# After installing the .deb, bind Ctrl+Shift+Esc to:
+# /usr/bin/linux-mint-system-monitor
