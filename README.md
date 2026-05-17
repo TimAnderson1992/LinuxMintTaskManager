@@ -4,34 +4,35 @@ Linux Mint System Monitor is a desktop system monitor for Linux Mint. It is insp
 
 The goal is simple: press `Ctrl+Shift+Esc`, see what is running, check CPU/memory/disk/network/GPU activity, and get back to work.
 
-## Quick Install
+## Install
 
-Most users should just download the `.deb` from GitHub Releases. You do not need the .NET SDK, and you do not need to compile anything.
+Most users should install the `.deb` from GitHub Releases. You do not need the .NET SDK, and you do not need to compile anything.
+
+### Option 1: Easy Linux Mint Install
 
 1. Download the latest `.deb` from:
-   <https://github.com/TimAnderson1992/LinuxMintTaskManager/releases>
-2. Double-click it in Linux Mint and install it.
-3. Press `Ctrl+Shift+Esc` to open Linux Mint System Monitor.
+   <https://github.com/TimAnderson1992/LinuxMintTaskManager/releases/latest>
+2. Double-click the downloaded `.deb` file in Linux Mint.
+3. Click **Install**.
+4. Press `Ctrl+Shift+Esc` to open Linux Mint System Monitor.
 
-If you prefer the terminal:
+That is it. No .NET SDK, no compiling, and no source checkout needed.
+
+### Option 2: Terminal Install
+
+For a fast terminal install with `curl`:
 
 ```bash
-sudo apt install ./linux-mint-system-monitor_1.0.0_amd64.deb
-```
-
-There is also a small installer script for the latest GitHub release:
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/TimAnderson1992/LinuxMintTaskManager/main/install-from-github.sh -o /tmp/install-linux-mint-system-monitor.sh
-bash /tmp/install-linux-mint-system-monitor.sh
+curl -fsSL https://raw.githubusercontent.com/TimAnderson1992/LinuxMintTaskManager/main/install-from-github.sh | bash
 ```
 
 With `wget`:
 
 ```bash
-wget -O /tmp/install-linux-mint-system-monitor.sh https://raw.githubusercontent.com/TimAnderson1992/LinuxMintTaskManager/main/install-from-github.sh
-bash /tmp/install-linux-mint-system-monitor.sh
+wget -qO- https://raw.githubusercontent.com/TimAnderson1992/LinuxMintTaskManager/main/install-from-github.sh | bash
 ```
+
+The script downloads the latest `.deb` from GitHub Releases, installs it with `apt`, and configures `Ctrl+Shift+Esc` on Linux Mint Cinnamon when possible.
 
 Uninstall with:
 
@@ -75,7 +76,7 @@ Linux Mint Cinnamon is the primary target. Ubuntu, Debian, Fedora, Arch-based sy
 
 ## Build From Source
 
-This section is for developers and contributors. Normal users should install the `.deb` from GitHub Releases instead.
+This section is for developers and contributors. Normal users should use one of the install options above instead.
 
 Requirements:
 
@@ -93,7 +94,7 @@ dotnet publish -c Release
 
 ## Packaging
 
-You only need this if you want to build a local `.deb` yourself.
+You only need this if you are developing the app or want to build a local `.deb` yourself.
 
 ```bash
 ./package-deb.sh
