@@ -187,6 +187,48 @@ schema_available() {
         && run_for_user "$user" gsettings list-relocatable-schemas 2>/dev/null | grep -qx "$CUSTOM_SCHEMA"
 }
 
+cinnamon_version() {
+    user="$1"
+    run_for_user "$user" sh -c 'cinnamon --version 2>/dev/null || cinnamon-session --version 2>/dev/null || true' \
+        | head -n 1
+}
+
+session_type() {
+    user="$1"
+    uid="$(user_uid "$user")"
+
+    if command -v loginctl >/dev/null 2>&1 && [ -n "$uid" ]; then
+        sessions="$(loginctl list-sessions --no-legend 2>/dev/null | awk -v uid="$uid" '$3 == uid {print $1}' || true)"
+        for session in $sessions; do
+            active="$(loginctl show-session "$session" -p Active --value 2>/dev/null || true)"
+            [ "$active" = "yes" ] || continue
+            type="$(loginctl show-session "$session" -p Type --value 2>/dev/null || true)"
+            desktop="$(loginctl show-session "$session" -p Desktop --value 2>/dev/null || true)"
+            printf '%s/%s\n' "${desktop:-unknown}" "${type:-unknown}"
+            return 0
+        done
+    fi
+
+    if [ -n "$uid" ]; then
+        for pid in $(pgrep -u "$uid" -x cinnamon-session 2>/dev/null || true) $(pgrep -u "$uid" -x cinnamon 2>/dev/null || true); do
+            [ -r "/proc/$pid/environ" ] || continue
+            desktop="$(tr '\0' '\n' < "/proc/$pid/environ" | awk -F= '$1 == "XDG_CURRENT_DESKTOP" {print $2; exit}')"
+            type="$(tr '\0' '\n' < "/proc/$pid/environ" | awk -F= '$1 == "XDG_SESSION_TYPE" {print $2; exit}')"
+            if [ -n "$desktop$type" ]; then
+                printf '%s/%s\n' "${desktop:-cinnamon}" "${type:-unknown}"
+                return 0
+            fi
+        done
+    fi
+
+    if [ "${SUDO_USER:-}" = "$user" ] || [ "${USER:-}" = "$user" ]; then
+        printf '%s/%s\n' "${XDG_CURRENT_DESKTOP:-unknown}" "${XDG_SESSION_TYPE:-unknown}"
+        return 0
+    fi
+
+    printf 'unknown/unknown\n'
+}
+
 custom_path() {
     printf '%s/%s/\n' "$CUSTOM_BASE" "$1"
 }
@@ -214,6 +256,11 @@ custom_ids() {
         | awk 'NF'
 }
 
+custom_list_value() {
+    user="$1"
+    run_for_user "$user" gsettings get "$LIST_SCHEMA" custom-list 2>/dev/null || printf '[]\n'
+}
+
 contains_id() {
     needle="$1"
     shift
@@ -234,6 +281,12 @@ set_custom_ids() {
         sep=", "
     done
     value="$value]"
+    run_for_user "$user" gsettings set "$LIST_SCHEMA" custom-list "$value" >/dev/null 2>&1 || true
+}
+
+rewrite_custom_list() {
+    user="$1"
+    value="$(custom_list_value "$user")"
     run_for_user "$user" gsettings set "$LIST_SCHEMA" custom-list "$value" >/dev/null 2>&1 || true
 }
 
@@ -269,12 +322,52 @@ remove_marker() {
     rm -f "$(marker_path "$1")" 2>/dev/null || true
 }
 
+manual_shortcut_message() {
+    user="$1"
+    log "Ctrl+Shift+Esc could not be verified for $user."
+    log "If the shortcut does not work, assign it manually:"
+    log "Menu -> Keyboard -> Shortcuts -> Custom Shortcuts"
+    log "Command: $APP_COMMAND"
+    log "Shortcut: Ctrl+Shift+Esc"
+}
+
 configure_entry() {
     user="$1"
     id="$2"
+    log "Cinnamon diagnostics for $user: version='$(cinnamon_version "$user")' session='$(session_type "$user")'"
+
+    # Cinnamon notices custom entries most reliably when the entry is already
+    # present in custom-list before the binding array is written.
     custom_set "$user" "$id" name "$APP_NAME"
     custom_set "$user" "$id" command "$APP_COMMAND"
+    rewrite_custom_list "$user"
+    sleep 0.2
+
+    # Some Cinnamon versions do not apply a custom binding on the first dconf
+    # notification during package install. Write the binding twice, after the
+    # custom-list update, then nudge custom-list again to refresh the cache.
     custom_set "$user" "$id" binding "['$APP_BINDING']"
+    sleep 0.2
+    custom_set "$user" "$id" binding "['$APP_BINDING']"
+    rewrite_custom_list "$user"
+    sleep 0.2
+
+    final_binding="$(custom_get "$user" "$id" binding)"
+    if ! binding_matches "$final_binding" && run_for_user "$user" sh -c 'command -v dconf >/dev/null 2>&1'; then
+        run_for_user "$user" dconf write "$(custom_path "$id")binding" "['$APP_BINDING']" >/dev/null 2>&1 || true
+        rewrite_custom_list "$user"
+        sleep 0.2
+        final_binding="$(custom_get "$user" "$id" binding)"
+    fi
+
+    log "Cinnamon shortcut final binding for $user/$id: ${final_binding:-unavailable}"
+    if binding_matches "$final_binding"; then
+        log "Cinnamon shortcut binding verification succeeded for $user."
+    else
+        log "Cinnamon shortcut binding verification failed for $user."
+        manual_shortcut_message "$user"
+    fi
+
     write_marker "$user" "$id"
 }
 
