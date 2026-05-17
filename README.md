@@ -23,7 +23,53 @@ Linux Mint Cinnamon is the primary target. Ubuntu, Debian, Fedora, Arch-based sy
 - Linux Mint Cinnamon `Ctrl+Shift+Esc` shortcut integration when installed from the `.deb`
 - Debian package build script
 
-## Install From a `.deb`
+## Download and Install
+
+The easiest way to install Linux Mint System Monitor is from GitHub Releases.
+
+1. Go to the releases page:
+   <https://github.com/TimAnderson1992/LinuxMintTaskManager/releases>
+2. Download the latest `.deb` file, for example:
+   `linux-mint-system-monitor_1.0.0_amd64.deb`
+3. Double-click the `.deb` file in Linux Mint, or install it from a terminal:
+
+```bash
+sudo apt install ./linux-mint-system-monitor_1.0.0_amd64.deb
+```
+
+On Linux Mint Cinnamon, the package tries to create a `Ctrl+Shift+Esc` custom keyboard shortcut for:
+
+```bash
+/usr/bin/linux-mint-system-monitor
+```
+
+If `Ctrl+Shift+Esc` is already assigned to something else, the installer leaves your existing shortcut alone and prints a message.
+
+### Command-Line Install From GitHub
+
+You can also install the latest GitHub release with the helper script:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/TimAnderson1992/LinuxMintTaskManager/main/install-from-github.sh -o /tmp/install-linux-mint-system-monitor.sh
+bash /tmp/install-linux-mint-system-monitor.sh
+```
+
+Or with `wget`:
+
+```bash
+wget -O /tmp/install-linux-mint-system-monitor.sh https://raw.githubusercontent.com/TimAnderson1992/LinuxMintTaskManager/main/install-from-github.sh
+bash /tmp/install-linux-mint-system-monitor.sh
+```
+
+Uninstall with:
+
+```bash
+sudo apt remove linux-mint-system-monitor
+```
+
+If the package created the Cinnamon shortcut, uninstall removes that shortcut entry and leaves other custom shortcuts alone.
+
+## Build a `.deb` Locally
 
 Build the package first:
 
@@ -48,16 +94,6 @@ The launcher command is:
 ```bash
 /usr/bin/linux-mint-system-monitor
 ```
-
-On Linux Mint Cinnamon, the package tries to create a `Ctrl+Shift+Esc` custom keyboard shortcut for that command. If the shortcut is already assigned to something else, the installer leaves the existing shortcut alone and prints a message.
-
-Uninstall with:
-
-```bash
-sudo apt remove linux-mint-system-monitor
-```
-
-If the package created the Cinnamon shortcut, uninstall removes that shortcut entry and leaves other custom shortcuts alone.
 
 ## Build From Source
 

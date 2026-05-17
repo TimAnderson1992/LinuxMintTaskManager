@@ -12,7 +12,7 @@ The default output is:
 artifacts/packages/linux-mint-system-monitor_1.0.0_amd64.deb
 ```
 
-The script publishes the Avalonia app as a self-contained Linux x64 Release build, stages the package tree, and runs `dpkg-deb`.
+The script publishes the Avalonia app as a self-contained Linux x64 Release build, stages the package tree, and runs `dpkg-deb`. The version comes from `VERSION`, unless `VERSION` is set in the environment or the build is running from a tag such as `v1.0.0`.
 
 ## Installed Layout
 

@@ -4,7 +4,17 @@ set -euo pipefail
 APP_ID="linux-mint-system-monitor"
 APP_NAME="Linux Mint System Monitor"
 EXECUTABLE_NAME="LinuxMintSystemMonitor"
-VERSION="${VERSION:-1.0.0}"
+if [[ -z "${VERSION:-}" ]]; then
+    if [[ "${GITHUB_REF_TYPE:-}" == "tag" && "${GITHUB_REF_NAME:-}" =~ ^v(.+)$ ]]; then
+        VERSION="${BASH_REMATCH[1]}"
+    elif git -C "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)" describe --tags --exact-match >/dev/null 2>&1; then
+        VERSION="$(git -C "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)" describe --tags --exact-match | sed 's/^v//')"
+    elif [[ -f "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/VERSION" ]]; then
+        VERSION="$(tr -d '[:space:]' < "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/VERSION")"
+    else
+        VERSION="1.0.0"
+    fi
+fi
 ARCHITECTURE="${ARCHITECTURE:-amd64}"
 ROOT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 BUILD_DIR="${ROOT_DIR}/artifacts/deb-build"
